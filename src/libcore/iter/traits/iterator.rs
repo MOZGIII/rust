@@ -1963,6 +1963,42 @@ pub trait Iterator {
         }).break_value()
     }
 
+    /// Applies function to the elements of iterator and returns
+    /// the first non-none result or the first error.
+    ///
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let a = ["1", "2", "lol", "NaN", "5"];
+    ///
+    /// let result = a.iter().find_result(|&s| s.parse()? == 2);
+    ///
+    /// assert_eq!(result, Ok(Some(&2)));
+    /// ```
+    ///
+    /// ```
+    /// let a = ["1", "2", "lol", "NaN", "5"];
+    ///
+    /// let result = a.iter().find_result(|&s| s.parse()? == 5);
+    ///
+    /// assert!(result.is_err());
+    /// ```
+    #[inline]
+    #[unstable(feature = "find_result", reason = "new API", issue = "?")]
+    fn find_result<F, E>(&mut self, mut f: F) -> Result<Option<Self::Item>, E> where
+        Self: Sized,
+        F: FnMut(&Self::Item) -> Result<bool, E>,
+    {
+        self.try_for_each(move |x| {
+            match f(&x) {
+                Ok(false) => LoopState::Continue(()),
+                Ok(true) => LoopState::Break(Ok(x)),
+                Err(x) => LoopState::Break(Err(x)),
+            }
+        }).break_value().transpose()
+    }
+
     /// Searches for an element in an iterator, returning its index.
     ///
     /// `position()` takes a closure that returns `true` or `false`. It applies

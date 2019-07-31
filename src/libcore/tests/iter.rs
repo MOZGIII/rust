@@ -1259,6 +1259,32 @@ fn test_find_map() {
 }
 
 #[test]
+fn test_find_result() {
+let xs: &[isize] = &[];
+    assert_eq!(xs.iter().find_result(testfn), Ok(None));
+    let xs: &[isize] = &[1, 2, 3, 4];
+    assert_eq!(xs.iter().find_result(testfn), Ok(Some(&2)));
+    let xs: &[isize] = &[1, 3, 4];
+    assert_eq!(xs.iter().find_result(testfn), Err(()));
+
+    let xs: &[isize] = &[1, 2, 3, 4, 5, 6, 7];
+    let mut iter = xs.iter();
+    assert_eq!(iter.find_result(testfn), Ok(Some(&2)));
+    assert_eq!(iter.find_result(testfn), Err(()));
+    assert_eq!(iter.next(), Some(&5));
+
+    fn testfn(x: &&isize) -> Result<bool, ()> {
+        if **x == 2 {
+            return Ok(true);
+        }
+        if **x == 4 {
+            return Err(());
+        }
+        Ok(false)
+    }
+}
+
+#[test]
 fn test_position() {
     let v = &[1, 3, 9, 27, 103, 14, 11];
     assert_eq!(v.iter().position(|x| *x & 1 == 0).unwrap(), 5);
