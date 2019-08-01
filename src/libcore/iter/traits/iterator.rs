@@ -1985,7 +1985,7 @@ pub trait Iterator {
     /// assert!(result.is_err());
     /// ```
     #[inline]
-    #[unstable(feature = "find_result", reason = "new API", issue = "?")]
+    #[unstable(feature = "find_result", reason = "new API", issue = "63178")]
     fn find_result<F, E>(&mut self, mut f: F) -> Result<Option<Self::Item>, E> where
         Self: Sized,
         F: FnMut(&Self::Item) -> Result<bool, E>,
