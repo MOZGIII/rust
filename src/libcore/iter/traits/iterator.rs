@@ -1972,7 +1972,7 @@ pub trait Iterator {
     /// ```
     /// let a = ["1", "2", "lol", "NaN", "5"];
     ///
-    /// let result = a.iter().find_result(|&s| s.parse()? == 2);
+    /// let result = a.iter().try_find(|&s| s.parse()? == 2);
     ///
     /// assert_eq!(result, Ok(Some(&2)));
     /// ```
@@ -1980,18 +1980,19 @@ pub trait Iterator {
     /// ```
     /// let a = ["1", "2", "lol", "NaN", "5"];
     ///
-    /// let result = a.iter().find_result(|&s| s.parse()? == 5);
+    /// let result = a.iter().try_find(|&s| s.parse()? == 5);
     ///
     /// assert!(result.is_err());
     /// ```
     #[inline]
-    #[unstable(feature = "find_result", reason = "new API", issue = "63178")]
-    fn find_result<F, E>(&mut self, mut f: F) -> Result<Option<Self::Item>, E> where
+    #[unstable(feature = "try_find", reason = "new API", issue = "63178")]
+    fn try_find<F, E, R>(&mut self, mut f: F) -> Result<Option<Self::Item>, E> where
         Self: Sized,
-        F: FnMut(&Self::Item) -> Result<bool, E>,
+        F: FnMut(&Self::Item) -> FR,
+        R: Try<Ok = bool, Error = E>,
     {
         self.try_for_each(move |x| {
-            match f(&x) {
+            match f(&x).into_result() {
                 Ok(false) => LoopState::Continue(()),
                 Ok(true) => LoopState::Break(Ok(x)),
                 Err(x) => LoopState::Break(Err(x)),

@@ -1259,18 +1259,18 @@ fn test_find_map() {
 }
 
 #[test]
-fn test_find_result() {
+fn test_try_find() {
 let xs: &[isize] = &[];
-    assert_eq!(xs.iter().find_result(testfn), Ok(None));
+    assert_eq!(xs.iter().try_find(testfn), Ok(None));
     let xs: &[isize] = &[1, 2, 3, 4];
-    assert_eq!(xs.iter().find_result(testfn), Ok(Some(&2)));
+    assert_eq!(xs.iter().try_find(testfn), Ok(Some(&2)));
     let xs: &[isize] = &[1, 3, 4];
-    assert_eq!(xs.iter().find_result(testfn), Err(()));
+    assert_eq!(xs.iter().try_find(testfn), Err(()));
 
     let xs: &[isize] = &[1, 2, 3, 4, 5, 6, 7];
     let mut iter = xs.iter();
-    assert_eq!(iter.find_result(testfn), Ok(Some(&2)));
-    assert_eq!(iter.find_result(testfn), Err(()));
+    assert_eq!(iter.try_find(testfn), Ok(Some(&2)));
+    assert_eq!(iter.try_find(testfn), Err(()));
     assert_eq!(iter.next(), Some(&5));
 
     fn testfn(x: &&isize) -> Result<bool, ()> {
